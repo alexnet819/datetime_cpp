@@ -6,8 +6,8 @@ A modern C++20 date and time library with timezone support, formatting capabilit
 
 - Thread-safe datetime operations
 - Timezone support and conversion
-- Date and time arithmetic
-- Various formatting options
+- Date and time arithmetic with millisecond precision
+- Various formatting options including millisecond support
 - C++20 format support
 - Leap year handling
 - Thread safety tests
@@ -80,18 +80,19 @@ int main() {
     // Get current time
     auto now = DateTime::current();
     std::cout << "Current time: " << now->toString() << std::endl;
+    std::cout << "Current time with milliseconds: " << now->toString() << "." << now->getMillisecond() << std::endl;
     
-    // Create a specific datetime
-    DateTime christmas(2023, 12, 25);
-    std::cout << "Christmas: " << christmas.toString() << std::endl;
+    // Create a specific datetime with milliseconds
+    DateTime christmas(2023, 12, 25, 12, 0, 0, 500);
+    std::cout << "Christmas (with 500ms): " << christmas.toString() << "." << christmas.getMillisecond() << std::endl;
     
-    // Date arithmetic
-    auto tomorrow = now->plusDays(1);
-    std::cout << "Tomorrow: " << tomorrow.toString() << std::endl;
+    // Date arithmetic with millisecond precision
+    auto plusMs = now->plusMilliseconds(750);
+    std::cout << "750ms later: " << plusMs.toString() << "." << plusMs.getMillisecond() << std::endl;
     
     // Comparison
-    if (tomorrow > *now) {
-        std::cout << "Tomorrow is after today" << std::endl;
+    if (plusMs > *now) {
+        std::cout << "The time with added milliseconds is after the original time" << std::endl;
     }
     
     return 0;
@@ -109,12 +110,16 @@ int main() {
     auto utcNow = DateTime::current(DateTime::WorldTime);
     auto jstNow = DateTime::current(DateTime::JapanTime);
     
-    std::cout << "UTC time: " << utcNow->toStringWithRegion() << std::endl;
-    std::cout << "Japan time: " << jstNow->toStringWithRegion() << std::endl;
+    std::cout << "UTC time: " << utcNow->toStringWithRegion() << "." << utcNow->getMillisecond() << std::endl;
+    std::cout << "Japan time: " << jstNow->toStringWithRegion() << "." << jstNow->getMillisecond() << std::endl;
     
-    // Convert between timezones
+    // Convert between timezones (milliseconds are preserved)
     auto utcToJst = utcNow->convertToRegion(DateTime::JapanTime);
-    std::cout << "UTC converted to JST: " << utcToJst.toStringWithRegion() << std::endl;
+    std::cout << "UTC converted to JST: " << utcToJst.toStringWithRegion() << "." << utcToJst.getMillisecond() << std::endl;
+    
+    // Create datetime with specific milliseconds in a timezone
+    DateTime tokyoEvent(2023, 10, 15, 14, 30, 45, 250, DateTime::JapanTime);
+    std::cout << "Tokyo event: " << tokyoEvent.toStringWithRegion() << "." << tokyoEvent.getMillisecond() << std::endl;
     
     return 0;
 }
@@ -127,23 +132,31 @@ int main() {
 #include <iostream>
 
 int main() {
-    DateTime dt(2023, 10, 15, 14, 30, 45);
+    DateTime dt(2023, 10, 15, 14, 30, 45, 789);
     
     // Standard format
     std::cout << "Default format: " << dt.toString() << std::endl;
     // Output: 2023-10-15 14:30:45
     
+    // With milliseconds
+    std::cout << "With milliseconds: " << dt.toString() << "." << dt.getMillisecond() << std::endl;
+    // Output: 2023-10-15 14:30:45.789
+    
     // Custom format
     std::cout << "Custom format: " << dt.toString("%Y/%m/%d %H:%M") << std::endl;
     // Output: 2023/10/15 14:30
+    
+    // Custom format with milliseconds
+    std::cout << "Custom with ms: " << dt.toString("%Y/%m/%d %H:%M:%S") << "." << dt.getMillisecond() << std::endl;
+    // Output: 2023/10/15 14:30:45.789
     
     // C++20 format style
     std::cout << "C++20 format: " << dt.formatString("{:%Y-%m-%d}") << std::endl;
     // Output: 2023-10-15
     
     // With timezone
-    std::cout << "With timezone: " << dt.toStringWithRegion() << std::endl;
-    // Output: 2023-10-15 14:30:45 UTC
+    std::cout << "With timezone: " << dt.toStringWithRegion() << "." << dt.getMillisecond() << std::endl;
+    // Output: 2023-10-15 14:30:45 UTC.789
     
     return 0;
 }
@@ -159,8 +172,8 @@ int main() {
 ### Key Methods
 
 - Creation: `DateTime()`, `DateTime(year, month, day, ...)`, `DateTime::current()`
-- Time access: `getYear()`, `getMonth()`, `getDay()`, `getHour()`, ...
-- Date arithmetic: `plusYears()`, `plusMonths()`, `plusDays()`, `plusHours()`, ...
+- Time access: `getYear()`, `getMonth()`, `getDay()`, `getHour()`, `getMinute()`, `getSecond()`, `getMillisecond()`
+- Date arithmetic: `plusYears()`, `plusMonths()`, `plusDays()`, `plusHours()`, `plusMinutes()`, `plusSeconds()`, `plusMilliseconds()`
 - Comparison: `operator==`, `operator!=`, `operator<`, `operator>`, ...
 - Formatting: `toString()`, `toStringWithRegion()`, `formatString()`
 - Timezone: `convertToRegion()`, `getRegion()`, `setRegion()`
