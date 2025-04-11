@@ -155,8 +155,8 @@ int main() {
     // Output: 2023-10-15
     
     // With timezone
-    std::cout << "With timezone: " << dt.toStringWithRegion() << "." << dt.getMillisecond() << std::endl;
-    // Output: 2023-10-15 14:30:45 UTC.789
+    std::cout << "With timezone: " << dt.toStringWithRegion() << std::endl;
+    // Output: 2023-10-15 14:30:45 UTC
     
     return 0;
 }
